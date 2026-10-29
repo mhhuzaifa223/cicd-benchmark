@@ -3,18 +3,26 @@ name: pipeline
 on:
   workflow_dispatch:
 
+env:
+  PIPELINE_TOOL: github-actions
+  RUN_ID: ${{ github.run_number }}
+  IMAGE_TAG: ${{ github.run_number }}
+
 jobs:
-  build:
+  build-and-push:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - name: Run build
-        env:
-          PIPELINE_TOOL: github-actions
-          RUN_ID: ${{ github.run_number }}
-          IMAGE_TAG: ${{ github.run_number }}
+      - name: Build images
         run: bash scripts/build.sh
+
+      - name: Push images to ECR
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: us-east-1
+        run: bash scripts/push.sh
 
       - name: Save timing results
         if: always()
