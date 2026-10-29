@@ -1,0 +1,20 @@
+workflow:
+  rules:
+    # run only when started manually from the GitLab UI
+    - if: $CI_PIPELINE_SOURCE == "web"
+
+variables:
+  PIPELINE_TOOL: gitlab-ci
+  RUN_ID: $CI_PIPELINE_IID
+  IMAGE_TAG: $CI_PIPELINE_IID
+  AWS_DEFAULT_REGION: us-east-1
+
+build-and-push:
+  tags: [bench]
+  script:
+    - bash scripts/build.sh
+    - bash scripts/push.sh
+  artifacts:
+    when: always
+    paths:
+      - results/stages.csv
