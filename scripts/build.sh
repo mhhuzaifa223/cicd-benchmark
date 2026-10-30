@@ -9,14 +9,19 @@ RESULTS="${RESULTS_FILE:-$ROOT/results/stages.csv}"
 TAG="${IMAGE_TAG:-bench}"
 mkdir -p "$WORK" "$(dirname "$RESULTS")"
 
-# Run a command and append "tool,run_id,stage,seconds" to the results CSV
+# Cold scenario: wipe Docker images and build cache first (not timed)
+if [ "${SCENARIO:-warm}" = "cold" ]; then
+  bash "$ROOT/scripts/clean.sh"
+fi
+
+# Run a command and append "tool,scenario,run_id,stage,seconds" to the results CSV
 stage() {
   local name="$1"; shift
   local start end
   start=$(date +%s.%N)
   "$@"
   end=$(date +%s.%N)
-  echo "${PIPELINE_TOOL:-local},${RUN_ID:-0},${name},$(awk -v s="$start" -v e="$end" 'BEGIN{printf "%.2f", e-s}')" >> "$RESULTS"
+  echo "${PIPELINE_TOOL:-local},${SCENARIO:-warm},${RUN_ID:-0},${name},$(awk -v s="$start" -v e="$end" 'BEGIN{printf "%.2f", e-s}')" >> "$RESULTS"
 }
 
 # Fetch one exact commit (same source for every tool)

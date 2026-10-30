@@ -14,7 +14,7 @@ stage() {
   start=$(date +%s.%N)
   "$@"
   end=$(date +%s.%N)
-  echo "${PIPELINE_TOOL:-local},${RUN_ID:-0},${name},$(awk -v s="$start" -v e="$end" 'BEGIN{printf "%.2f", e-s}')" >> "$RESULTS"
+  echo "${PIPELINE_TOOL:-local},${SCENARIO:-warm},${RUN_ID:-0},${name},$(awk -v s="$start" -v e="$end" 'BEGIN{printf "%.2f", e-s}')" >> "$RESULTS"
 }
 
 ACCOUNT="$(aws sts get-caller-identity --query Account --output text)"
