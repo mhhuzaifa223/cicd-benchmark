@@ -2,9 +2,18 @@ name: pipeline
 
 on:
   workflow_dispatch:
+    inputs:
+      scenario:
+        description: "cold (clean Docker cache first) or warm"
+        type: choice
+        options:
+          - cold
+          - warm
+        default: cold
 
 env:
   PIPELINE_TOOL: github-actions
+  SCENARIO: ${{ inputs.scenario }}
   RUN_ID: ${{ github.run_number }}
   IMAGE_TAG: ${{ github.run_number }}
 

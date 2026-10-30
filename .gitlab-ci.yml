@@ -5,6 +5,7 @@ workflow:
 
 variables:
   PIPELINE_TOOL: gitlab-ci
+  SCENARIO: "cold"
   RUN_ID: $CI_PIPELINE_IID
   IMAGE_TAG: $CI_PIPELINE_IID
   AWS_DEFAULT_REGION: us-east-1
