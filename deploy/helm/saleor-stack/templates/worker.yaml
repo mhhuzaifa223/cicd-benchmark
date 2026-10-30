@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-worker
+  namespace: {{ .Release.Namespace }}
+spec:
+  replicas: {{ .Values.worker.replicas }}
+  selector:
+    matchLabels:
+      app: saleor-worker
+  template:
+    metadata:
+      labels:
+        app: saleor-worker
+    spec:
+      containers:
+        - name: worker
+          image: {{ .Values.worker.image }}
+          command: ["celery"]
+          args: ["-A", "saleor", "--app=saleor.celeryconf:app", "worker", "--loglevel=info"]
+          env:
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: saleor-db-credentials
+                  key: password
+            - name: DATABASE_URL
+              value: "postgres://saleor:$(DB_PASSWORD)@db:5432/saleor"
+            - name: SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: saleor-app-credentials
+                  key: secret-key
+            - name: CACHE_URL
+              value: "redis://cache:6379/0"
+            - name: CELERY_BROKER_URL
+              value: "redis://cache:6379/0"
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
